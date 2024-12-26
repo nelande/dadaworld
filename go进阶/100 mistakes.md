@@ -549,7 +549,7 @@ func main() {
 ```go
 	src := []int{0, 1, 2}
 	var dst []int
-	copy(dst, src) // copy 结果取决于 两个切片的最小chang
+	copy(dst, src) // copy 结果取决于 两个切片的最小长度
 	fmt.Println(dst) // []
 ```
 
@@ -995,7 +995,6 @@ if err := ctx.Err(); err != nil { // 可以这样，这里的err是影子变量
 
 
 ### 45、返回 nil 结果
-
 
 
 
