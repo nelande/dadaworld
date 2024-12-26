@@ -1059,5 +1059,66 @@ func (c Customer) Validate() error {
 
 
 
+### 46、将文件名作为入函数的输入
+
+假设有一个函数的功能是计算文件的空行数，可能会像以下实现
+
+```go
+func countEmptyLinesInFile(filename string) (int, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return 0, err
+	}
+	// Handle file closure
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		// ...
+	}
+}
+```
+
+但是这个函数复用性低，如果需要计算比如请求的空行数，就不能复用了。应该善用接口来实现
+
+```go
+func countEmptyLines(reader io.Reader) (int, error) { // 可以传入任何实现了 io.Reader的东西
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		// ...
+	}
+}
+```
+
+
+
+### 47、疏忽了defer参数和接收者的赋值机制
+
+当使用defer 调用一个方法或函数时，方法和函数的参数会被立即赋值。可以通过参数传入指针，或者闭包的形式使得 defer 跟上参数的变化。
+
+对于方法，方法接收者也会被立即赋值。
+
+```go
+func main() {
+	i := 1
+	defer fmt.Println(i) // 1
+	i = 2
+}
+
+func main() {  // 闭包
+	i := 1
+	defer func() {
+		fmt.Println(i) // 2
+	}()
+	i = 2
+}
+```
+
+
+
+## 错误处理
+
+#### 48、何时使用panic
+
+当遇上存粹的程序错误时，使用。
+
 
 
