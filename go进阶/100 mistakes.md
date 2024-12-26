@@ -996,5 +996,68 @@ if err := ctx.Err(); err != nil { // 可以这样，这里的err是影子变量
 
 ### 45、返回 nil 结果
 
+一个nil接收者 转换成 接口 会变成一个non-nil 接口
+
+```go
+type MultiError struct {
+	errs []string
+}
+
+func (m *MultiError) Add(err error) {
+	m.errs = append(m.errs, err.Error())
+}
+
+func (m *MultiError) Error() string {
+	return strings.Join(m.errs, ";")
+}
+
+type Customer struct {
+	 Age int
+	 Name string
+}
+
+func (c Customer) Validate() error {
+	var m *MultiError
+	if c.Age < 0 {
+		m = &MultiError{}
+		m.Add(errors.New("age is negative"))
+	}
+	if c.Name == "" {
+		if m == nil {
+			m = &MultiError{}
+		}
+		m.Add(errors.New("name is nil"))
+	}
+	return m // nil 的MultiError指针 转换为 error 后，为 non-nil error
+}
+
+func main() {
+	c := &Customer{Age: 10, Name: "John"}
+	if err := c.Validate(); err != nil { // 永远返回non-nil error
+		fmt.Printf("customer is invalid: %v", err)
+	}
+}
+```
+
+应该改成
+
+```go
+func (c Customer) Validate() error {
+	var m *MultiError
+	if c.Age < 0 {
+		// ...
+	}
+	if c.Name == "" {
+		// ...
+	}
+    if m != nil {
+        return m
+    }
+    return nil
+}
+```
+
+
+
 
 
